@@ -2,7 +2,10 @@
 
 [![Build Status](https://travis-ci.org/inoio/sbt-pillar-plugin.png?branch=master)](https://travis-ci.org/inoio/sbt-pillar-plugin)
 
-Based off the work done by https://github.com/inoio/sbt-pillar-plugin
+Based off the work done by https://github.com/inoio/sbt-pillar-plugin but differs by:
+* Allow use of Authentication credentials
+* Allow passing in hosts as a comma-separated string
+* Will allow use of NetworkTopologyStrategy for creating keyspaces.
 
 This sbt plugin allows to run Cassandra schema/data migrations from sbt (using [pillar](https://github.com/comeara/pillar)).
  For details on migration files check out the [pillar documentation](https://github.com/comeara/pillar#migration-files).
@@ -33,7 +36,7 @@ An example configuration file (based on typesafe-config) is:
 development {
   cassandra {
     keyspace = "pigeon"
-    hosts = "192.168.42.45"
+    hosts = "localhost"
     port = 9042
     replicationFactor = 1
     defaultConsistencyLevel = 1
@@ -57,7 +60,7 @@ master {
     password = ${?CASSANDRA_PASSWORD}
     replicationFactor = ${?CASSANDRA_REPLICATION_FACTOR}
     defaultConsistencyLevel = ${?CASSANDRA_CONSISTENCY_LEVEL}
-    replicationStrategy = "NetworkTopologyStrategy"
+    replicationStrategy = "SimpleStrategy"
   }
 }
 
@@ -75,6 +78,10 @@ The sbt pillar plugin provides the following tasks:
 <dt>migrate</dt><dd>Runs pillar migrations (assumes <code>createKeyspace</code> was run before)</dd>
 <dt>cleanMigrate</dt><dd>Recreates the keyspace (drops if exists && creates) and runs pillar migrations (useful for continuous integration scenarios)</dd>
 </dl>
+
+## Todo
+
+Currently only the replication strategy 'SimpleStrategy' works. This will be resolved in next version.
 
 ## License
 
