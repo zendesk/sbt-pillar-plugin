@@ -1,6 +1,8 @@
-# sbt-pillar-plugin - manage Cassandra migrations from sbt
+# sbt-pillar - manage Cassandra migrations from sbt
 
 [![Build Status](https://travis-ci.org/inoio/sbt-pillar-plugin.png?branch=master)](https://travis-ci.org/inoio/sbt-pillar-plugin)
+
+Based off the work done by https://github.com/inoio/sbt-pillar-plugin
 
 This sbt plugin allows to run Cassandra schema/data migrations from sbt (using [pillar](https://github.com/comeara/pillar)).
  For details on migration files check out the [pillar documentation](https://github.com/comeara/pillar#migration-files).
@@ -12,42 +14,56 @@ The plugin is built for sbt 0.13.
 
 To install the plugin you have to add it to `project/plugins.sbt`:
 ```
-addSbtPlugin("io.ino" %% "sbt-pillar-plugin" % "1.0.5 ")
+addSbtPlugin("com.42dragons" %% "sbt-pillar" % "0.1.0")
 ```
 
 ## Configuration
 
 Add appropriate configuration to `build.sbt` like this:
 ```
-import io.ino.sbtpillar.Plugin.PillarKeys._
-
-...
-
-pillarSettings
-
-pillarConfigFile := file("conf/application.conf")
-
-pillarConfigKey := "cassandra.url"
-
-pillarReplicationStrategyConfigKey := "cassandra.replicationStrategy"
-
-pillarReplicationFactorConfigKey := "cassandra.replicationFactor"
-
-pillarDefaultConsistencyLevelConfigKey := "cassandra.defaultConsistencyLevel"
-
-pillarMigrationsDir := file("conf/migrations")
+pillarConfigFile := file("db/pillar.conf")
+pillarMigrationsDir := file("db/migrations")
 ```
 
-The shown configuration assumes that the url for your cassandra is configured in `conf/application.conf` under the key
-`cassandra.url` and that pillar migration files are kept in `conf/migrations` (regarding the format of migration files
+The shown configuration assumes that the settings for your cassandra are configured in `db/pillar.conf` and that pillar migration files are kept in `db/migrations` (regarding the format of migration files
 check out the [pillar documentation](https://github.com/comeara/pillar#migration-files)).
 
-The `cassandra.url` has to follow the format `cassandra://<host>:<port>/<keyspace>?host=<host>&host=<host>`, e.g. it would be
-`cassandra.url="cassandra://192.168.0.10:9042/my_keyspace?host=192.168.0.11&host=192.168.0.12"`.
+An example configuration file (based on typesafe-config) is:
+```
+development {
+  cassandra {
+    keyspace = "pigeon"
+    hosts = "192.168.42.45"
+    port = 9042
+    replicationFactor = 1
+    defaultConsistencyLevel = 1
+    replicationStrategy = "SimpleStrategy"
+  }
+}
 
-The `pillarReplicationStrategyConfigKey` is optional, the default value is `SimpleStrategy`. 
-The `pillarReplicationFactorConfigKey` is optional, the default value is `3`. 
-The `pillarDefaultConsistencyLevelConfigKey` is optional, the default value is `QUORUM`.
+test = ${development}
+test {
+  cassandra {
+    keyspace = "pigeon_test"
+  }
+}
+
+master {
+  cassandra {
+    hosts = ${?CASSANDRA_HOSTS}
+    port = 9042
+    keyspace = ${?CASSANDRA_KEYSPACE}
+    username = ${?CASSANDRA_USERNAME}
+    password = ${?CASSANDRA_PASSWORD}
+    replicationFactor = ${?CASSANDRA_REPLICATION_FACTOR}
+    defaultConsistencyLevel = ${?CASSANDRA_CONSISTENCY_LEVEL}
+    replicationStrategy = "NetworkTopologyStrategy"
+  }
+}
+
+staging = ${master}
+production = ${master}
+```
 
 ## Usage
 
