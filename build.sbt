@@ -1,45 +1,24 @@
 sbtPlugin := true
 
-name := "sbt-pillar-plugin"
+name := "sbt-pillar"
 
-description := "sbt plugin for cassandra schema/data migrations using pillar (https://github.com/comeara/pillar)"
+lazy val commonSettings = Seq(
+  version in ThisBuild := "0.1",
+  organization in ThisBuild := "com.42dragons"
+)
 
-organization := "io.ino"
-
-version := "1.0.5"
-
-licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
-
-scalaVersion := "2.10.4"
-
-scalacOptions += "-target:jvm-1.7"
+lazy val root = (project in file(".")).
+  settings(
+    sbtPlugin := true,
+    name := "sbt-pillar",
+    description := "A wrapper over the Pillar library to manage Cassandra migrations (https://github.com/comeara/pillar)",
+    licenses += ("MIT", url("https://opensource.org/licenses/MIT")),
+    publishMavenStyle := false,
+    bintrayRepository := "sbt-plugins",
+    bintrayOrganization := None
+  )
 
 libraryDependencies ++= Seq(
   "com.chrisomeara" %% "pillar" % "2.0.1",
-  "com.datastax.cassandra" % "cassandra-driver-core" % "2.1.8"
+  "com.datastax.cassandra" % "cassandra-driver-core" % "2.1.9"
 )
-
-// Maven publishing info
-publishMavenStyle := true
-
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (version.value.trim.endsWith("SNAPSHOT"))
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
-
-pomExtra := (
-  <url>https://github.com/inoio/sbt-pillar-plugin</url>
-  <scm>
-    <url>git@github.com:inoio/sbt-pillar-plugin.git</url>
-    <connection>scm:git:git@github.com:inoio/sbt-pillar-plugin.git</connection>
-  </scm>
-  <developers>
-    <developer>
-      <id>martin.grotzke</id>
-      <name>Martin Grotzke</name>
-      <url>https://github.com/magro</url>
-    </developer>
-  </developers>)
