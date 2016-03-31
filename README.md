@@ -85,4 +85,4 @@ Currently only the replication strategy 'SimpleStrategy' works. This will be res
 
 ## License
 
-The license is Apache 2.0, see LICENSE.txt.
+The license is MIT (https://opensource.org/licenses/MIT), have at it!
