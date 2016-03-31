@@ -17,7 +17,7 @@ The plugin is built for sbt 0.13.6+.
 
 To install the plugin you have to add it to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.42dragons" %% "sbt-pillar" % "0.1.0")
+addSbtPlugin("com.42dragons" %% "sbt-pillar" % "0.1.2")
 ```
 
 ## Configuration
