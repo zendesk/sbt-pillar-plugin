@@ -7,9 +7,8 @@ A rewrite of the plugin https://github.com/inoio/sbt-pillar-plugin and added:
 * Allow passing in hosts as a comma-separated string
 * Will allow use of NetworkTopologyStrategy for creating keyspaces.
 
-This sbt plugin allows to run Cassandra schema/data migrations from sbt (using [pillar](https://github.com/comeara/pillar)).
- For details on migration files check out the [pillar documentation](https://github.com/comeara/pillar#migration-files).
- The cassandra connection configuration is not based on pillar but we're using our own format (see [Configuration](#configuration)).
+This sbt plugin enables running Cassandra schema/data migrations from sbt (using [pillar](https://github.com/comeara/pillar)).
+For details on migration files check out the [pillar documentation](https://github.com/comeara/pillar#migration-files).
 
 The plugin is built for sbt 0.13.6+.
 
