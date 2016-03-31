@@ -1,6 +1,6 @@
 # sbt-pillar - manage Cassandra migrations from sbt
 
-[![Build Status](https://travis-ci.org/inoio/sbt-pillar-plugin.png?branch=master)](https://travis-ci.org/inoio/sbt-pillar-plugin)
+[![Build Status](https://travis-ci.org/henders/sbt-pillar-plugin.svg?branch=master)](https://travis-ci.org/henders/sbt-pillar-plugin)
 
 Based off the work done by https://github.com/inoio/sbt-pillar-plugin but differs by:
 * Allow use of Authentication credentials
