@@ -11,7 +11,7 @@ This sbt plugin allows to run Cassandra schema/data migrations from sbt (using [
  For details on migration files check out the [pillar documentation](https://github.com/comeara/pillar#migration-files).
  The cassandra connection configuration is not based on pillar but we're using our own format (see [Configuration](#configuration)).
 
-The plugin is built for sbt 0.13.
+The plugin is built for sbt 0.13.6+.
 
 ## Installation
 
@@ -24,8 +24,8 @@ addSbtPlugin("com.42dragons" %% "sbt-pillar" % "0.1.0")
 
 Add appropriate configuration to `build.sbt` like this:
 ```
-pillarConfigFile := file("db/pillar.conf")
-pillarMigrationsDir := file("db/migrations")
+pillarConfigFile in ThisBuild := file("db/pillar.conf")
+pillarMigrationsDir in ThisBuild := file("db/migrations")
 ```
 
 The shown configuration assumes that the settings for your cassandra are configured in `db/pillar.conf` and that pillar migration files are kept in `db/migrations` (regarding the format of migration files
