@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/henders/sbt-pillar-plugin.svg?branch=master)](https://travis-ci.org/henders/sbt-pillar-plugin)
 
-Based off the work done by https://github.com/inoio/sbt-pillar-plugin but differs by:
+A rewrite of the plugin https://github.com/inoio/sbt-pillar-plugin and added:
 * Allow use of Authentication credentials
 * Allow passing in hosts as a comma-separated string
 * Will allow use of NetworkTopologyStrategy for creating keyspaces.
