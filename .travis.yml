@@ -3,7 +3,7 @@ language: scala
 sudo: false
 
 scala:
-  - 2.11.7
+  - 2.10.4
 
 cache:
   directories:
