@@ -1,6 +1,14 @@
 language: scala
+
+sudo: false
+
 scala:
   - 2.11.7
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION clean compile test
