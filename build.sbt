@@ -1,9 +1,9 @@
 sbtPlugin := true
 
 name := "sbt-pillar"
-organization := "com.42dragons"
+organization := "io.github.henders"
 description := "A wrapper over the Pillar library to manage Cassandra migrations (https://github.com/comeara/pillar)"
-version := "0.1.3"
+version := "0.1.5"
 
 licenses += ("MIT", url("https://opensource.org/licenses/MIT"))
 publishMavenStyle := false

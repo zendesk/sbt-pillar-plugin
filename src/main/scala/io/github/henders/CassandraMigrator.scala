@@ -1,4 +1,4 @@
-package com.fortytwodragons
+package io.github.henders
 
 import com.chrisomeara.pillar.{Migrator, Registry, ReplicationOptions}
 import com.datastax.driver.core.exceptions.InvalidQueryException

@@ -1,9 +1,9 @@
-package com.fortytwodragons
+package io.github.henders
 
 import sbt.Keys._
 import sbt._
 
-object Plugin extends AutoPlugin {
+object PillarPlugin extends AutoPlugin {
 
   object autoImport {
     //  available tasks
