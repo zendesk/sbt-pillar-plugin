@@ -14,7 +14,7 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
   private val DEFAULT_USERNAME = "cassandra"
   private val DEFAULT_PASSWORD = "cassandra"
 
-  val env = sys.env.getOrElse("SCALA_ENV", "development")
+  val env = sys.props.getOrElse("SCALA_ENV", sys.env.getOrElse("SCALA_ENV", "development"))
   logger.info(s"Loading config file: $configFile for environment: $env")
   val config = ConfigFactory.parseFile(configFile).resolve().getConfig(env)
   val cassandraConfig = config.getConfig("cassandra")
