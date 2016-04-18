@@ -1,9 +1,15 @@
 language: scala
 
+scala:
+  - 2.10.5
+
+jdk:
+  - oraclejdk8
+
 sudo: false
 
-scala:
-  - 2.10.4
+services:
+  - cassandra
 
 cache:
   directories:
@@ -11,4 +17,4 @@ cache:
     - $HOME/.sbt/boot/
 
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION clean compile test
+  - sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test coverageReport codacyCoverage
