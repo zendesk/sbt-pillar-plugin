@@ -8,11 +8,7 @@ import sbt.{Logger, _}
 import scala.util.Try
 
 class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
-  private val DefaultConsistencyLevel = ConsistencyLevel.QUORUM
-  private val DefaultReplicationStrategy = "SimpleStrategy"
-  private val DefaultReplicationFactor = 3
-  private val DefaultUsername = "cassandra"
-  private val DefaultPassword = "cassandra"
+  import CassandraMigrator._
 
   val env = sys.props.getOrElse("SCALA_ENV", sys.env.getOrElse("SCALA_ENV", "development"))
   logger.info(s"Loading config file: $configFile for environment: $env")
@@ -67,4 +63,12 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
       .build()
       .connect
   }
+}
+
+object CassandraMigrator {
+  private val DefaultConsistencyLevel = ConsistencyLevel.QUORUM
+  private val DefaultReplicationStrategy = "SimpleStrategy"
+  private val DefaultReplicationFactor = 3
+  private val DefaultUsername = "cassandra"
+  private val DefaultPassword = "cassandra"
 }
