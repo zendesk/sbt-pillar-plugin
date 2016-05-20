@@ -5,8 +5,9 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/coverage/aa8198eb6d3a4582b66f32aff1b18cbd)](https://www.codacy.com/app/shender/sbt-pillar-plugin)
 
 A rewrite of the plugin https://github.com/inoio/sbt-pillar-plugin and added:
-* Allow use of Authentication credentials
-* Allow passing in hosts as a comma-separated string
+* Allow use of Authentication credentials.
+* Allow passing in hosts as a comma-separated string.
+* Allow creating of cql migration files.
 * Will allow use of NetworkTopologyStrategy for creating keyspaces.
 
 This sbt plugin enables running Cassandra schema/data migrations from sbt (using [pillar](https://github.com/comeara/pillar)).
@@ -18,7 +19,7 @@ The plugin is built for sbt 0.13.6+.
 
 To install the plugin you have to add it to `project/plugins.sbt`:
 ```
-addSbtPlugin("io.github.henders" %% "sbt-pillar" % "0.1.5")
+addSbtPlugin("io.github.henders" %% "sbt-pillar" % "0.1.7")
 ```
 
 ## Configuration
@@ -78,7 +79,25 @@ The sbt pillar plugin provides the following tasks:
 <dt>dropKeyspace</dt><dd>Drops the keyspace</dd>
 <dt>migrate</dt><dd>Runs pillar migrations (assumes <code>createKeyspace</code> was run before)</dd>
 <dt>cleanMigrate</dt><dd>Recreates the keyspace (drops if exists && creates) and runs pillar migrations (useful for continuous integration scenarios)</dd>
+<dt>createMigration</dt><dd>Create a new migration file from the name passed in.</dd>
 </dl>
+
+e.g.
+```bash
+$ sbt 'createMigration create_user_settings'
+[info] Loading config file: db/pillar.conf for environment: development
+[info] Creating migration file: db/migrations/20160520105550_create_user_settings_timeseries.cql
+[success] Created migration 'db/migrations/20160520105550_create_user_settings_timeseries.cql'
+```
+
+```bash
+$ sbt cleanMigrate
+[info] Loading config file: db/pillar.conf for environment: development
+[info] Dropping keyspace pigeon at 192.168.42.45:9042
+[info] Creating keyspace pigeon at 192.168.42.45:9042
+[info] Migrating keyspace pigeon at 192.168.42.45:9042
+[success] Total time: 10 s, completed 20-May-2016 11:07:05
+```
 
 ## Todo
 
