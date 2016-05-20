@@ -1,7 +1,7 @@
 language: scala
 
 scala:
-  - 2.10.4
+  - 2.10.6
 
 jdk:
   - oraclejdk8
@@ -15,6 +15,9 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
+
+env:
+  - SCALA_ENV=travis
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test coverageReport codacyCoverage
