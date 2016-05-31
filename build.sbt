@@ -8,7 +8,7 @@ description := "A wrapper over the Pillar library to manage Cassandra migrations
 homepage := Some(url("https://github.com/henders/sbt-pillar-plugin"))
 
 licenses += ("MIT", url("https://opensource.org/licenses/MIT"))
-publishMavenStyle := true
+publishMavenStyle := false
 bintrayRepository := "sbt-plugins"
 bintrayOrganization := None
 bintrayPackageLabels := Seq("sbt", "sbt-plugin", "pillar")
