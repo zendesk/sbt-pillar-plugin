@@ -4,10 +4,10 @@ import java.io.PrintWriter
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-import com.chrisomeara.pillar.{Migrator, Registry, ReplicationOptions}
 import com.datastax.driver.core.exceptions.InvalidQueryException
 import com.datastax.driver.core.{Cluster, ConsistencyLevel, QueryOptions}
 import com.typesafe.config.ConfigFactory
+import de.kaufhof.pillar.{Migrator, Registry, ReplicationOptions}
 import sbt.{Logger, _}
 
 import scala.util.Try

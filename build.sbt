@@ -16,7 +16,7 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false}
 
 libraryDependencies ++= Seq(
-  "com.chrisomeara" %% "pillar" % "2.0.1",
+  "de.kaufhof" %% "pillar" % "3.1.0",
   "com.datastax.cassandra" % "cassandra-driver-core" % "3.0.0",
   "org.scalactic" %% "scalactic" % "2.2.6",
   "org.scalatest" %% "scalatest" % "2.2.6" % "test",
