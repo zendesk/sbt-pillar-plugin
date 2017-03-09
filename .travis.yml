@@ -11,13 +11,27 @@ sudo: false
 services:
   - cassandra
 
+# These directories are cached to S3 at the end of the build
+# see: http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html
+# timeout is for upload to S3, in seconds; see: https://docs.travis-ci.com/user/caching/
+# .sbt/boot settings from several repos found by Googling: ".travis.yml" cache sbt
 cache:
+  timeout: 600
   directories:
     - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/
+    - $HOME/.m2/repository
+    - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
+
+# Tricks to avoid unnecessary cache updates.
+# see: http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html
+#      https://github.com/spray/spray/blob/master/.travis.yml
+before_cache:
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.ivy2 -name ".*.lock" -delete
+  - find $HOME/.sbt -name "*.lock" -delete
 
 env:
   - SCALA_ENV=travis
 
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test coverageReport codacyCoverage
+  - sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test coverageOff coverageReport

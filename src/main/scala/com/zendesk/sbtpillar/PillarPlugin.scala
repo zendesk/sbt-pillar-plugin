@@ -1,4 +1,4 @@
-package io.github.henders
+package com.zendesk.sbtpillar
 
 import sbt.Keys._
 import sbt._

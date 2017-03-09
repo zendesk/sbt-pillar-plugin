@@ -3,9 +3,9 @@ sbtPlugin := true
 coverageHighlighting := false
 
 name := "sbt-pillar"
-organization := "io.github.henders"
-description := "A wrapper over the Pillar library to manage Cassandra migrations (https://github.com/comeara/pillar)"
-homepage := Some(url("https://github.com/henders/sbt-pillar-plugin"))
+organization := "com.zendesk"
+description := "A wrapper over the Pillar library to manage Cassandra migrations (https://github.com/comeara/pillar). This fork includes Consul support."
+homepage := Some(url("https://github.com/zendesk/sbt-pillar-plugin"))
 
 licenses += ("MIT", url("https://opensource.org/licenses/MIT"))
 publishMavenStyle := false
@@ -16,27 +16,32 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false}
 
 libraryDependencies ++= Seq(
-  "de.kaufhof" %% "pillar" % "3.1.0",
   "com.datastax.cassandra" % "cassandra-driver-core" % "3.0.0",
-  "org.scalactic" %% "scalactic" % "2.2.6",
-  "org.scalatest" %% "scalatest" % "2.2.6" % "test",
+  ("com.ecwid.consul" % "consul-api" % "1.1.11").exclude("commons-logging", "commons-logging"),
+  "com.typesafe" % "config" % "1.3.0",
+  "de.kaufhof" %% "pillar" % "3.1.0",
   "org.mockito" % "mockito-core" % "1.10.19" % "test",
-  "com.typesafe" % "config" % "1.3.0"
+  "org.scalactic" %% "scalactic" % "2.2.6",
+  "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 )
 
 pomExtra :=
-  <scm>
-    <url>https://github.com/henders/sbt-pillar-plugin</url>
-    <connection>scm:git:git@github.com:henders/sbt-pillar-plugin.git</connection>
-    <developerConnection>scm:git:https://github.com/henders/sbt-pillar-plugin.git</developerConnection>
-  </scm>
-    <developers>
-      <developer>
-        <id>henders</id>
-        <name>Shane Hender</name>
-        <email>henders [at] gmail.com</email>
-        <url>https://henders.github.io</url>
-      </developer>
-    </developers>
+  <developers>
+    <developer>
+      <id>henders</id>
+      <name>Shane Hender</name>
+      <email>henders [at] gmail.com</email>
+      <url>https://henders.github.io</url>
+    </developer>
+    <developer>
+      <id>devstuff</id>
+      <name>John Bates</name>
+      <email>jbates@zendesk.com</email>
+      <url>https://www.zendesk.com</url>
+    </developer>
+  </developers>
 
-resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
+scmInfo := Some(ScmInfo(
+  browseUrl = url("https://github.com/zendesk/sbt-pillar-plugin"),
+  connection = "scm:git:git@github.com:zendesk/sbt-pillar-plugin.git"
+))

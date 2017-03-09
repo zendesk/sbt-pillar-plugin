@@ -1,39 +1,40 @@
 # sbt-pillar - manage Cassandra migrations from sbt
 
-[![Build Status](https://travis-ci.org/henders/sbt-pillar-plugin.svg?branch=master)](https://travis-ci.org/henders/sbt-pillar-plugin)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/aa8198eb6d3a4582b66f32aff1b18cbd)](https://www.codacy.com/app/shender/sbt-pillar-plugin)
-[![Codacy Badge](https://api.codacy.com/project/badge/coverage/aa8198eb6d3a4582b66f32aff1b18cbd)](https://www.codacy.com/app/shender/sbt-pillar-plugin)
+[![Build Status](https://travis-ci.org/zendesk/sbt-pillar-plugin.svg?branch=master)](https://travis-ci.org/zendesk/sbt-pillar-plugin)
 
 A rewrite of the plugin https://github.com/inoio/sbt-pillar-plugin and added:
 * Allow use of Authentication credentials.
 * Allow passing in hosts as a comma-separated string.
-* Allow creating of cql migration files.
-* Will allow use of NetworkTopologyStrategy for creating keyspaces.
+* Allow creating of `cql` migration files.
+* Will allow use of `NetworkTopologyStrategy` for creating keyspaces.
 
-This sbt plugin enables running Cassandra schema/data migrations from sbt (using [pillar](https://github.com/comeara/pillar)).
-For details on migration files check out the [pillar documentation](https://github.com/comeara/pillar#migration-files).
+This fork also adds [Consul](https://www.consul.io/) support for retrieving the host list, using a service tag.
+
+This sbt plugin enables running Cassandra schema/data migrations from sbt (using [pillar](https://github.com/comeara/pillar)). For details on migration files check out the [pillar documentation](https://github.com/comeara/pillar#migration-files).
 
 The plugin is built for sbt 0.13.6+.
 
 ## Installation
 
-To install the plugin you have to add it to `project/plugins.sbt`:
+To install this fork of the plugin you have to add it to `project/plugins.sbt`:
+
 ```
-addSbtPlugin("io.github.henders" %% "sbt-pillar" % "0.1.7")
+addSbtPlugin("com.zendesk" %% "sbt-pillar" % "0.3.0")
 ```
 
 ## Configuration
 
 Add appropriate configuration to `build.sbt` like this:
+
 ```
 pillarConfigFile in ThisBuild := file("db/pillar.conf")
 pillarMigrationsDir in ThisBuild := file("db/migrations")
 ```
 
-The shown configuration assumes that the settings for your cassandra are configured in `db/pillar.conf` and that pillar migration files are kept in `db/migrations` (regarding the format of migration files
-check out the [pillar documentation](https://github.com/comeara/pillar#migration-files)).
+The shown configuration assumes that the settings for your cassandra are configured in `db/pillar.conf` (relative to `build.sbt`), and that pillar migration files are kept in `db/migrations`. For the format of migration files check out the [pillar documentation](https://github.com/comeara/pillar#migration-files).
 
-An example configuration file (based on typesafe-config) is:
+An example configuration file (based on [typesafe-config](https://github.com/typesafehub/config)) is:
+
 ```
 development {
   cassandra {
@@ -43,6 +44,16 @@ development {
     replicationFactor = 1
     defaultConsistencyLevel = 1
     replicationStrategy = "SimpleStrategy"
+  }
+  consul {
+    host = "localhost"
+    host = ${?CONSUL_HOST}
+    port = 8500
+    port = ${?CONSUL_PORT}
+    url = "http://localhost:8500"
+    url = ${?CONSUL_URL}
+    tag = ""
+    tag = ${?CONSUL_TAG}
   }
 }
 
@@ -82,7 +93,8 @@ The sbt pillar plugin provides the following tasks:
 <dt>createMigration</dt><dd>Create a new migration file from the name passed in.</dd>
 </dl>
 
-e.g.
+For example:
+
 ```bash
 $ sbt 'createMigration create_user_settings'
 [info] Loading config file: db/pillar.conf for environment: development
@@ -99,10 +111,10 @@ $ sbt cleanMigrate
 [success] Total time: 10 s, completed 20-May-2016 11:07:05
 ```
 
-## Todo
+## To Do
 
 Currently only the replication strategy 'SimpleStrategy' works. This will be resolved in next version.
 
 ## License
 
-The license is MIT (https://opensource.org/licenses/MIT), have at it!
+The license is MIT (https://opensource.org/licenses/MIT). Have at it!

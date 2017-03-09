@@ -1,0 +1,5 @@
+[repositories]
+local
+zen-libs-m2: https://zdrepo.jfrog.io/zdrepo/zen-libs-m2/
+zen-libs-ivy: https://zdrepo.jfrog.io/zdrepo/zen-libs-ivy/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
+zen-sbt-plugins-ivy: https://zdrepo.jfrog.io/zdrepo/zen-sbt-plugins/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
