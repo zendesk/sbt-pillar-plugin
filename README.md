@@ -52,6 +52,8 @@ development {
     port = ${?CONSUL_PORT}
     url = "http://localhost:8500"
     url = ${?CONSUL_URL}
+    service = "cassandra"
+    service = ${?CONSUL_SERVICE}
     tag = ""
     tag = ${?CONSUL_TAG}
   }
