@@ -34,19 +34,19 @@ class ConsulConfig(config: Config) {
       if (hasHost) {
         val host = config.getString(hostPath)
         if (url.getHost != host) {
-          throw new InvalidConsulConfiguration
+          throw new InvalidConsulConfiguration("Mismatch between host and the url's host")
         }
       }
       if (hasPort) {
         val port = config.getInt(portPath)
         if (url.getPort != port) {
-          throw new InvalidConsulConfiguration
+          throw new InvalidConsulConfiguration("Mismatch between port and the url's port")
         }
       }
       (url.getHost, url.getPort)
     } else {
       if (!hasHost || !hasPort) {
-        throw new InvalidConsulConfiguration
+        throw new InvalidConsulConfiguration("Both host and port values are required")
       }
       (config.getString(hostPath), config.getInt(portPath))
     }
@@ -54,7 +54,7 @@ class ConsulConfig(config: Config) {
 
   val service: String = {
     if (!config.hasPath(servicePath)) {
-      throw new InvalidConsulConfiguration
+      throw new InvalidConsulConfiguration("Missing service value")
     }
 
     config.getString(servicePath)

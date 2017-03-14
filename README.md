@@ -44,18 +44,13 @@ development {
     replicationFactor = 1
     defaultConsistencyLevel = 1
     replicationStrategy = "SimpleStrategy"
-  }
-  consul {
-    host = "localhost"
-    host = ${?CONSUL_HOST}
-    port = 8500
-    port = ${?CONSUL_PORT}
-    url = "http://localhost:8500"
-    url = ${?CONSUL_URL}
-    service = "cassandra"
-    service = ${?CONSUL_SERVICE}
-    tag = ""
-    tag = ${?CONSUL_TAG}
+    consul {
+      host = "localhost"
+      port = 8500
+      url = "http://localhost:8500"
+      service = "cassandra"
+      tag = ""
+    }
   }
 }
 

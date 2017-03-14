@@ -25,7 +25,7 @@ class ConsulSpec extends FunSpec with MockitoSugar with Matchers with BeforeAndA
 
   describe("#hostsByServiceName") {
     it("always returns fallback values in dev, test, or travis envs") {
-      val config = new ConsulConfig(testConfig.getConfig("consul"))
+      val config = new ConsulConfig(testConfig.getConfig("cassandra.consul"))
       val consul = spy(new Consul(config, isDevOrTestEnv = true, logger))
       whenReady(consul.hostsByServiceName("foo", None, List("foo:123", "bar:321")), Timeout(1.second)) { result =>
         result shouldEqual List("foo:123", "bar:321")
@@ -34,7 +34,7 @@ class ConsulSpec extends FunSpec with MockitoSugar with Matchers with BeforeAndA
     }
 
     it("returns fallback values if empty list returned from consul") {
-      val config = new ConsulConfig(testConfig.getConfig("consul"))
+      val config = new ConsulConfig(testConfig.getConfig("cassandra.consul"))
       val consul = spy(new Consul(config, isDevOrTestEnv = false, logger))
       doReturn(List()).when(consul).healthServices(any(), any())
       whenReady(consul.hostsByServiceName("foo", None, List("foo:123", "bar:321")), Timeout(1.second)) { result =>
@@ -44,7 +44,7 @@ class ConsulSpec extends FunSpec with MockitoSugar with Matchers with BeforeAndA
     }
 
     it("returns fallback values if failed to connect to consul") {
-      val config = new ConsulConfig(testConfig.getConfig("consul"))
+      val config = new ConsulConfig(testConfig.getConfig("cassandra.consul"))
       val consul = spy(new Consul(config, isDevOrTestEnv = false, logger))
       doThrow(new RuntimeException).when(consul).getHealthConsulClient
       whenReady(consul.hostsByServiceName("foo", None, List("foo:123", "bar:321")), Timeout(1.second)) { result =>
@@ -54,18 +54,28 @@ class ConsulSpec extends FunSpec with MockitoSugar with Matchers with BeforeAndA
     }
 
     it("calls out to consul and return fallback values if no entries returned") {
-      val config = new ConsulConfig(testConfig.getConfig("consul"))
+      val config = new ConsulConfig(testConfig.getConfig("cassandra.consul"))
       val consul = spy(new Consul(config, isDevOrTestEnv = false, logger))
-      val healthService = new HealthService
-      val node = new Node
-      node.setNode("example.com")
-      val service = new Service
-      service.setPort(1)
-      healthService.setNode(node)
-      healthService.setService(service)
-      doReturn(List(healthService)).when(consul).healthServices(any(), any())
+
+      val healthService1 = new HealthService
+      val node1 = new Node
+      node1.setNode("ftp.example.com")
+      val service1 = new Service
+      service1.setPort(1)
+      healthService1.setNode(node1)
+      healthService1.setService(service1)
+
+      val healthService2 = new HealthService
+      val node2 = new Node
+      node2.setNode("www.example.com")
+      val service2 = new Service
+      service2.setPort(2)
+      healthService2.setNode(node2)
+      healthService2.setService(service2)
+
+      doReturn(List(healthService1, healthService2)).when(consul).healthServices(any(), any())
       whenReady(consul.hostsByServiceName("foo", Some("pod100"), List("foo:123", "bar:321")), Timeout(1.second)) { result =>
-        result should equal(List("example.com:1"))
+        result should equal(List("ftp.example.com:1", "www.example.com:2"))
       }
     }
   }

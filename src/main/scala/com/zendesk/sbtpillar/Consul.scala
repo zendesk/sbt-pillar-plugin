@@ -37,7 +37,7 @@ class Consul(
           logger.info(s"No $serviceName nodes were registered with Consul with tag=$tag. Falling back to: $fallBackValues")
           fallBackValues
         case Failure(error) =>
-          logger.info(s"Failed to get the $serviceName nodes from Consul. Falling back to: $fallBackValues; error: ${error}")
+          logger.error(s"Failed to get the $serviceName nodes from Consul. Falling back to: $fallBackValues; error: ${error}")
           fallBackValues
       }
     }

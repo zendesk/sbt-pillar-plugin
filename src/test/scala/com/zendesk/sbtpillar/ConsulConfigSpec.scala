@@ -14,7 +14,7 @@ class ConsulConfigSpec extends FunSpec with MockitoSugar with Matchers {
 
   describe("Validation") {
     it("loads the test config") {
-      val config = new ConsulConfig(testConfig.getConfig("consul"))
+      val config = new ConsulConfig(testConfig.getConfig("cassandra.consul"))
       config.host shouldEqual "consul.zd-dev.com"
       config.port shouldEqual 8500
       config.service shouldEqual "foo"

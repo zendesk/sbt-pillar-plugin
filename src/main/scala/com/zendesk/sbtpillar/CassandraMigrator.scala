@@ -1,6 +1,7 @@
 package com.zendesk.sbtpillar
 
 import java.io.PrintWriter
+import java.net.InetSocketAddress
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -10,6 +11,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import de.kaufhof.pillar.{Migrator, Registry, ReplicationOptions}
 import sbt.{Logger, _}
 
+import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Try
@@ -20,10 +22,15 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
   logger.info(s"Loading config file: $configFile for environment: $env")
   val config: Config = ConfigFactory.parseFile(configFile).resolve().getConfig(env)
   val cassandraConfig: Config = config.getConfig("cassandra")
-  val hosts: Seq[String] = {
+  val hostsAndPorts: Seq[InetSocketAddress] = {
+    val port: Int = cassandraConfig.getInt("port")
+    val portRegex = "(.*):([0-9]{1,5})".r.anchored
     val fallbackValues = cassandraConfig.getString("hosts").split(',').toList
-    if (config.hasPath("consul")) {
-      val consulConfig = new ConsulConfig(config.getConfig("consul"))
+    // This assumes each fallback value is either a DNS host name or an IPv4 address, with an optional colon and port suffix.
+    // IPv6 addresses will break this code.
+
+    val retrievedHosts = if (cassandraConfig.hasPath("consul")) {
+      val consulConfig = new ConsulConfig(cassandraConfig.getConfig("consul"))
       val consul = new Consul(consulConfig, isDevOrTestEnv, logger)
       val consulResolvedHosts = consul.hostsByServiceName(
         consulConfig.service,
@@ -34,9 +41,13 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
     } else {
       fallbackValues
     }
+
+    retrievedHosts.map {
+      case portRegex(h, p) => new InetSocketAddress(h, p.toInt)
+      case f => new InetSocketAddress(f, port)
+    }
   }
   val keyspace: String = cassandraConfig.getString("keyspace")
-  val port: Int = cassandraConfig.getInt("port")
   val replicationStrategy: String = Try(cassandraConfig.getString("replicationStrategy"))
     .getOrElse(CassandraMigrator.DefaultReplicationStrategy)
   val replicationFactor: Int = Try(cassandraConfig.getInt("replicationFactor"))
@@ -48,14 +59,14 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
   val session: Session = createSession
 
   def createKeyspace: CassandraMigrator = {
-    logger.info(s"Creating keyspace $keyspace at ${hosts.head}:$port")
+    logger.info(s"Creating keyspace $keyspace at ${hostsAndPorts.head}")
     Migrator(Registry(Seq.empty))
       .initialize(session, keyspace, new ReplicationOptions(Map("class" -> replicationStrategy, "replication_factor" -> replicationFactor)))
     this
   }
 
   def dropKeyspace: CassandraMigrator = {
-    logger.info(s"Dropping keyspace $keyspace at ${hosts.head}:$port")
+    logger.info(s"Dropping keyspace $keyspace at ${hostsAndPorts.head}")
     try {
       Migrator(Registry(Seq.empty)).destroy(session, keyspace)
     } catch {
@@ -66,7 +77,7 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
 
   def migrate: CassandraMigrator = {
     val registry = Registry.fromDirectory(migrationsDir)
-    logger.info(s"Migrating keyspace $keyspace at ${hosts.head}:$port")
+    logger.info(s"Migrating keyspace $keyspace at ${hostsAndPorts.head}")
     session.execute(s"USE $keyspace")
     Migrator(registry).migrate(session)
     this
@@ -102,9 +113,8 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
 
     Cluster
       .builder()
-      .addContactPoints(hosts: _*)
+      .addContactPointsWithPorts(hostsAndPorts.asJavaCollection)
       .withCredentials(username, password)
-      .withPort(port)
       .withQueryOptions(queryOptions)
       .build()
       .connect

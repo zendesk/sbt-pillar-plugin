@@ -6,10 +6,15 @@ scala:
 jdk:
   - oraclejdk8
 
-sudo: false
+branches:
+  only: master
 
 services:
   - cassandra
+
+env:
+  global:
+    - SCALA_ENV=travis
 
 # These directories are cached to S3 at the end of the build
 # see: http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html
@@ -30,8 +35,11 @@ before_cache:
   - find $HOME/.ivy2 -name ".*.lock" -delete
   - find $HOME/.sbt -name "*.lock" -delete
 
-env:
-  - SCALA_ENV=travis
-
+# If SBT fails to load `build.sbt` the CI system (e.g. Travis-CI) will hang and/or eventually timeout.
+# SBT outputs: `Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?`
+# Fix is to run sbt with a closed input stream: `sbt < /dev/null`
+# - ref: https://github.com/sbt/sbt/issues/265
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test coverageOff coverageReport
+  - jdk_switcher use oraclejdk8
+  - ./bin/setup_credentials.sh
+  - sbt ++$TRAVIS_SCALA_VERSION clean coverage compile test coverageOff coverageReport < /dev/null
