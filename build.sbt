@@ -44,10 +44,15 @@ scmInfo := Some(ScmInfo(
 ))
 
 publishTo := {
-  if (isSnapshot.value) {
-    // Add timestamp when publishing snapshots to Artifactory; see https://www.jfrog.com/confluence/display/RTF/SBT+Repositories
-    Some("snapshots" at "https://zdrepo.jfrog.io/zdrepo/sbt-plugin-snapshots-local;build.timestamp=" + new java.util.Date().getTime)
-  } else {
-    Some("releases"  at "https://zdrepo.jfrog.io/zdrepo/sbt-plugin-releases-local")
-  }
+  val artifactoryDomain = "zdrepo.jfrog.io"
+  val artifactoryServerName = "zdrepo"
+  val artifactoryRootUrl = s"https://$artifactoryDomain/$artifactoryServerName"
+  def repoUrl(id: String) = sbt.url(s"$artifactoryRootUrl/$id")
+  val layout = Resolver.ivyStylePatterns
+  val prefix = "sbt-plugin"
+  // Add timestamp when publishing snapshots to Artifactory; see https://www.jfrog.com/confluence/display/RTF/SBT+Repositories
+  val (status, suffix) = if (isSnapshot.value) ("snapshots", ";build.timestamp=" + new java.util.Date().getTime) else ("releases", "")
+  val repository = s"$prefix-$status-local"
+
+  Some(Resolver.url(repository, repoUrl(s"$repository$suffix"))(layout))
 }
