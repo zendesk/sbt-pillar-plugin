@@ -9,9 +9,6 @@ homepage := Some(url("https://github.com/zendesk/sbt-pillar-plugin"))
 
 licenses += ("MIT", url("https://opensource.org/licenses/MIT"))
 publishMavenStyle := false
-bintrayRepository := "sbt-plugins"
-bintrayOrganization := None
-bintrayPackageLabels := Seq("sbt", "sbt-plugin", "pillar")
 publishArtifact in Test := false
 pomIncludeRepository := { _ => false}
 

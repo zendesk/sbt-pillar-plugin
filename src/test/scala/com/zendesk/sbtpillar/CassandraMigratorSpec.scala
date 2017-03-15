@@ -1,13 +1,25 @@
 package com.zendesk.sbtpillar
 
+import java.net.InetSocketAddress
 import java.nio.file.{Files, Path}
 
+import com.typesafe.config.Config
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 import sbt._
 
 import scala.collection.JavaConversions._
 import scala.util.control.NonFatal
+
+// scalastyle:ignore magic.number
+
+class TestCassandraMigrator(configFile: File, migrationsDir: File, logger: Logger, configSection: String)
+  extends CassandraMigrator(configFile, migrationsDir, logger) {
+
+  override protected def getCassandraConfig: Config = {
+    config.getConfig(configSection)
+  }
+}
 
 class CassandraMigratorSpec extends FunSpec with MockitoSugar with Matchers with BeforeAndAfterAll {
   val logger: Logger = mock[Logger]
@@ -18,6 +30,34 @@ class CassandraMigratorSpec extends FunSpec with MockitoSugar with Matchers with
   override def beforeAll: Unit = {
     super.beforeAll
     migrator.session.execute("DROP keyspace if exists pillar_test")
+  }
+
+  describe("hostsAndPorts") {
+    it("should handle multiple hosts (name only)") {
+      val subject = new TestCassandraMigrator(confFile, migrationDir.toFile, logger, "test-cassandra-multiple-hosts")
+      val expectedResult = List(
+        new InetSocketAddress("cassandra1", 9042),
+        new InetSocketAddress("cassandra2", 9042)
+      )
+      subject.hostsAndPorts shouldEqual expectedResult
+    }
+    it("should handle multiple hosts (explicit ports)") {
+      val subject = new TestCassandraMigrator(confFile, migrationDir.toFile, logger, "test-cassandra-explicit-ports")
+      val expectedResult = List(
+        new InetSocketAddress("cassandra1", 9091),
+        new InetSocketAddress("cassandra2", 9092),
+        new InetSocketAddress("cassandra3", 9093)
+      )
+      subject.hostsAndPorts shouldEqual expectedResult
+    }
+    it("should handle multiple hosts (with and without ports)") {
+      val subject = new TestCassandraMigrator(confFile, migrationDir.toFile, logger, "test-cassandra-mixed-ports")
+      val expectedResult = List(
+        new InetSocketAddress("cassandra1", 9042),
+        new InetSocketAddress("cassandra3", 9099)
+      )
+      subject.hostsAndPorts shouldEqual expectedResult
+    }
   }
 
   describe("createKeyspace") {
@@ -42,7 +82,6 @@ class CassandraMigratorSpec extends FunSpec with MockitoSugar with Matchers with
       migrator.createMigration("foo") should equal(true)
     }
   }
-
 
   def keyspaces: List[String] = {
     val keyspaces = try {

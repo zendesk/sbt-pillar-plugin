@@ -21,11 +21,11 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
   def isDevOrTestEnv: Boolean = List("development", "test", "travis").contains(env)
   logger.info(s"Loading config file: $configFile for environment: $env")
   val config: Config = ConfigFactory.parseFile(configFile).resolve().getConfig(env)
-  val cassandraConfig: Config = config.getConfig("cassandra")
+  val cassandraConfig: Config = getCassandraConfig
   val hostsAndPorts: Seq[InetSocketAddress] = {
     val port: Int = cassandraConfig.getInt("port")
     val portRegex = "(.*):([0-9]{1,5})".r.anchored
-    val fallbackValues = cassandraConfig.getString("hosts").split(',').toList
+    val fallbackValues = cassandraConfig.getString("hosts").split(',').map(h => h.trim).toList
     // This assumes each fallback value is either a DNS host name or an IPv4 address, with an optional colon and port suffix.
     // IPv6 addresses will break this code.
 
@@ -56,7 +56,7 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
     .getOrElse(CassandraMigrator.DefaultConsistencyLevel)
   val username: String = Try(cassandraConfig.getString("username")).getOrElse(CassandraMigrator.DefaultUsername)
   val password: String = Try(cassandraConfig.getString("password")).getOrElse(CassandraMigrator.DefaultPassword)
-  val session: Session = createSession
+  lazy val session: Session = createSession
 
   def createKeyspace: CassandraMigrator = {
     logger.info(s"Creating keyspace $keyspace at ${hostsAndPorts.head}")
@@ -118,6 +118,10 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
       .withQueryOptions(queryOptions)
       .build()
       .connect
+  }
+
+  protected def getCassandraConfig: Config = {
+    config.getConfig("cassandra")
   }
 }
 
