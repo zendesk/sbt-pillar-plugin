@@ -1,4 +1,4 @@
-package io.github.henders
+package com.zendesk.sbtpillar
 
 import sbt.Keys._
 import sbt._
@@ -8,19 +8,19 @@ object PillarPlugin extends AutoPlugin {
 
   object autoImport {
     //  available tasks
-    val createKeyspace = taskKey[Unit]("Create keyspace.")
-    val dropKeyspace = taskKey[Unit]("Drop keyspace.")
-    val migrate = taskKey[Unit]("Run pillar migrations.")
-    val cleanMigrate = taskKey[Unit]("Recreate keyspace and run pillar migrations.")
-    val createMigration = inputKey[Unit]("Create a new migration file")
+    val createKeyspace: TaskKey[Unit] = taskKey[Unit]("Create keyspace.")
+    val dropKeyspace: TaskKey[Unit] = taskKey[Unit]("Drop keyspace.")
+    val migrate: TaskKey[Unit] = taskKey[Unit]("Run pillar migrations.")
+    val cleanMigrate: TaskKey[Unit] = taskKey[Unit]("Recreate keyspace and run pillar migrations.")
+    val createMigration: InputKey[Unit] = inputKey[Unit]("Create a new migration file")
     //  build settings declared in the user's build.sbt
-    val pillarConfigFile = settingKey[File]("Path to the configuration file with the cassandra settings")
-    val pillarMigrationsDir = settingKey[File]("Path to the directory with the migration files")
+    val pillarConfigFile: SettingKey[File] = settingKey[File]("Path to the configuration file with the cassandra settings")
+    val pillarMigrationsDir: SettingKey[File] = settingKey[File]("Path to the directory with the migration files")
   }
 
   import autoImport._
 
-  override def trigger = allRequirements
+  override def trigger: PluginTrigger = allRequirements
 
   override lazy val buildSettings = Seq(
     pillarConfigFile := file("db/pillar.conf"),
@@ -47,19 +47,19 @@ object PillarPlugin extends AutoPlugin {
     }
   )
 
-  lazy val createKeyspaceTask = Def.task {
+  lazy val createKeyspaceTask: Def.Initialize[Task[CassandraMigrator]] = Def.task {
     new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).createKeyspace
   }
 
-  lazy val dropKeyspaceTask = Def.task {
+  lazy val dropKeyspaceTask: Def.Initialize[Task[CassandraMigrator]] = Def.task {
     new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).dropKeyspace
   }
 
-  lazy val migrateTask = Def.task {
+  lazy val migrateTask: Def.Initialize[Task[CassandraMigrator]] = Def.task {
     new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).migrate
   }
 
-  lazy val cleanMigrateTask = Def.task {
+  lazy val cleanMigrateTask: Def.Initialize[Task[CassandraMigrator]] = Def.task {
     new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log)
       .dropKeyspace
       .createKeyspace
