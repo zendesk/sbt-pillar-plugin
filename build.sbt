@@ -42,3 +42,12 @@ scmInfo := Some(ScmInfo(
   browseUrl = url("https://github.com/zendesk/sbt-pillar-plugin"),
   connection = "scm:git:git@github.com:zendesk/sbt-pillar-plugin.git"
 ))
+
+publishTo := {
+  if (isSnapshot.value) {
+    // Add timestamp when publishing snapshots to Artifactory; see https://www.jfrog.com/confluence/display/RTF/SBT+Repositories
+    Some("snapshots" at "https://zdrepo.jfrog.io/zdrepo/sbt-plugin-snapshots-local;build.timestamp=" + new java.util.Date().getTime)
+  } else {
+    Some("releases"  at "https://zdrepo.jfrog.io/zdrepo/sbt-plugin-releases-local")
+  }
+}
