@@ -12,14 +12,18 @@ publishMavenStyle := false
 publishArtifact in Test := false
 pomIncludeRepository := { _ => false}
 
+scalaVersion := "2.12.4"
+sbtVersion in Global := "1.0.4"
+crossSbtVersions := Vector("0.13.16", "1.0.4")
+
 libraryDependencies ++= Seq(
-  "com.datastax.cassandra" % "cassandra-driver-core" % "3.0.0",
-  ("com.ecwid.consul" % "consul-api" % "1.1.11").exclude("commons-logging", "commons-logging"),
-  "com.typesafe" % "config" % "1.3.0",
-  "de.kaufhof" %% "pillar" % "3.1.0",
+  "com.datastax.cassandra" % "cassandra-driver-core" % "3.6.0",
+  ("com.ecwid.consul" % "consul-api" % "1.4.2").exclude("commons-logging", "commons-logging"),
+  "com.typesafe" % "config" % "1.3.3",
+  "de.kaufhof" %% "pillar" % "4.1.2",
   "org.mockito" % "mockito-core" % "1.10.19" % "test",
-  "org.scalactic" %% "scalactic" % "2.2.6",
-  "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+  "org.scalactic" %% "scalactic" % "3.0.5",
+  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
 
 pomExtra :=

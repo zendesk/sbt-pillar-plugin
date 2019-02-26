@@ -60,7 +60,7 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
 
   def createKeyspace: CassandraMigrator = {
     logger.info(s"Creating keyspace $keyspace at ${hostsAndPorts.head}")
-    Migrator(Registry(Seq.empty))
+    Migrator(Registry(Seq.empty), "")
       .initialize(session, keyspace, new ReplicationOptions(Map("class" -> replicationStrategy, "replication_factor" -> replicationFactor)))
     this
   }
@@ -68,7 +68,7 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
   def dropKeyspace: CassandraMigrator = {
     logger.info(s"Dropping keyspace $keyspace at ${hostsAndPorts.head}")
     try {
-      Migrator(Registry(Seq.empty)).destroy(session, keyspace)
+      Migrator(Registry(Seq.empty), "").destroy(session, keyspace)
     } catch {
       case e: InvalidQueryException => logger.warn(s"Failed to drop keyspace ($keyspace) - ${e.getMessage}")
     }
