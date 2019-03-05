@@ -4,7 +4,7 @@ import java.io.{File => JFile}
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.{FunSpec, Matchers}
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import sbt.Logger
 
 class ConsulConfigSpec extends FunSpec with MockitoSugar with Matchers {

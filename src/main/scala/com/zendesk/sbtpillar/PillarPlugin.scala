@@ -41,26 +41,26 @@ object PillarPlugin extends AutoPlugin {
       }
 
       streams.value.log.info(s"Creating migration for '${migrationName}'....")
-      new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).createMigration(migrationName)
+      new ZendeskCassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).createMigration(migrationName)
       // Workaround for SBT bug where this task is called multiple times from single invocation
       System.exit(0)
     }
   )
 
-  lazy val createKeyspaceTask: Def.Initialize[Task[CassandraMigrator]] = Def.task {
-    new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).createKeyspace
+  lazy val createKeyspaceTask: Def.Initialize[Task[ZendeskCassandraMigrator]] = Def.task {
+    new ZendeskCassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).createKeyspace
   }
 
-  lazy val dropKeyspaceTask: Def.Initialize[Task[CassandraMigrator]] = Def.task {
-    new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).dropKeyspace
+  lazy val dropKeyspaceTask: Def.Initialize[Task[ZendeskCassandraMigrator]] = Def.task {
+    new ZendeskCassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).dropKeyspace
   }
 
-  lazy val migrateTask: Def.Initialize[Task[CassandraMigrator]] = Def.task {
-    new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).migrate
+  lazy val migrateTask: Def.Initialize[Task[ZendeskCassandraMigrator]] = Def.task {
+    new ZendeskCassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log).migrate
   }
 
-  lazy val cleanMigrateTask: Def.Initialize[Task[CassandraMigrator]] = Def.task {
-    new CassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log)
+  lazy val cleanMigrateTask: Def.Initialize[Task[ZendeskCassandraMigrator]] = Def.task {
+    new ZendeskCassandraMigrator(pillarConfigFile.value, pillarMigrationsDir.value, streams.value.log)
       .dropKeyspace
       .createKeyspace
       .migrate
