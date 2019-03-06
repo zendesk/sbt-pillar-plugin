@@ -1,6 +1,7 @@
 sbtPlugin := true
 
 coverageHighlighting := false
+scalaVersion := "2.12.8"
 
 name := "sbt-pillar"
 organization := "com.zendesk"
@@ -16,11 +17,12 @@ libraryDependencies ++= Seq(
   "com.datastax.cassandra" % "cassandra-driver-core" % "3.0.0",
   ("com.ecwid.consul" % "consul-api" % "1.1.11").exclude("commons-logging", "commons-logging"),
   "com.typesafe" % "config" % "1.3.0",
-  "de.kaufhof" %% "pillar" % "3.1.0",
+  "de.kaufhof" %% "pillar" % "4.1.2",
   "org.mockito" % "mockito-core" % "1.10.19" % "test",
-  "org.scalactic" %% "scalactic" % "2.2.6",
-  "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+  "org.scalactic" %% "scalactic" % "3.0.6",
+  "org.scalatest" %% "scalatest" % "3.0.6" % "test"
 )
+dependencyOverrides += "org.scalatest" %% "scalatest" % "3.0.6" 
 
 pomExtra :=
   <developers>

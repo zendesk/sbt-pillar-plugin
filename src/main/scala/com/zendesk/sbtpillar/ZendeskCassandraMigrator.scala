@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 import com.datastax.driver.core.exceptions.InvalidQueryException
 import com.datastax.driver.core.{Cluster, ConsistencyLevel, QueryOptions, Session}
 import com.typesafe.config.{Config, ConfigFactory}
-import de.kaufhof.pillar.{Migrator, Registry, ReplicationOptions}
+import de.kaufhof.pillar._
 import sbt.{Logger, _}
 
 import scala.collection.JavaConverters._
@@ -16,8 +16,8 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Try
 
-class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
-  val env: String = sys.props.getOrElse("SCALA_ENV", sys.env.getOrElse("SCALA_ENV", "development"))
+class ZendeskCassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
+  val env: String = sys.props.getOrElse("SCALA_ENV", sys.env.getOrElse("SCALA_ENV", "test"))
   def isDevOrTestEnv: Boolean = List("development", "test", "travis").contains(env)
   logger.info(s"Loading config file: $configFile for environment: $env")
   val config: Config = ConfigFactory.parseFile(configFile).resolve().getConfig(env)
@@ -49,37 +49,41 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
   }
   val keyspace: String = cassandraConfig.getString("keyspace")
   val replicationStrategy: String = Try(cassandraConfig.getString("replicationStrategy"))
-    .getOrElse(CassandraMigrator.DefaultReplicationStrategy)
+    .getOrElse(ZendeskCassandraMigrator.DefaultReplicationStrategy)
   val replicationFactor: Int = Try(cassandraConfig.getInt("replicationFactor"))
-    .getOrElse(CassandraMigrator.DefaultReplicationFactor)
+    .getOrElse(ZendeskCassandraMigrator.DefaultReplicationFactor)
   val defaultConsistencyLevel: ConsistencyLevel = Try(ConsistencyLevel.valueOf(cassandraConfig.getString("defaultConsistencyLevel")))
-    .getOrElse(CassandraMigrator.DefaultConsistencyLevel)
-  val username: String = Try(cassandraConfig.getString("username")).getOrElse(CassandraMigrator.DefaultUsername)
-  val password: String = Try(cassandraConfig.getString("password")).getOrElse(CassandraMigrator.DefaultPassword)
+    .getOrElse(ZendeskCassandraMigrator.DefaultConsistencyLevel)
+  val username: String = Try(cassandraConfig.getString("username")).getOrElse(ZendeskCassandraMigrator.DefaultUsername)
+  val password: String = Try(cassandraConfig.getString("password")).getOrElse(ZendeskCassandraMigrator.DefaultPassword)
   lazy val session: Session = createSession
 
-  def createKeyspace: CassandraMigrator = {
+  def createKeyspace: ZendeskCassandraMigrator = {
     logger.info(s"Creating keyspace $keyspace at ${hostsAndPorts.head}")
-    Migrator(Registry(Seq.empty))
-      .initialize(session, keyspace, new ReplicationOptions(Map("class" -> replicationStrategy, "replication_factor" -> replicationFactor)))
+    val migrator = new CassandraMigrator(Registry(Seq.empty), "applied_migrations")
+
+    migrator.initialize(session, keyspace, SimpleStrategy(replicationFactor))
     this
   }
 
-  def dropKeyspace: CassandraMigrator = {
+  def dropKeyspace: ZendeskCassandraMigrator = {
     logger.info(s"Dropping keyspace $keyspace at ${hostsAndPorts.head}")
     try {
-      Migrator(Registry(Seq.empty)).destroy(session, keyspace)
+      val migrator = new CassandraMigrator(Registry(Seq.empty), "applied_migrations")
+      migrator.destroy(session, keyspace)
     } catch {
       case e: InvalidQueryException => logger.warn(s"Failed to drop keyspace ($keyspace) - ${e.getMessage}")
     }
     this
   }
 
-  def migrate: CassandraMigrator = {
+  def migrate: ZendeskCassandraMigrator = {
     val registry = Registry.fromDirectory(migrationsDir)
     logger.info(s"Migrating keyspace $keyspace at ${hostsAndPorts.head}")
     session.execute(s"USE $keyspace")
-    Migrator(registry).migrate(session)
+    val migrator = new CassandraMigrator(registry, "applied_migrations")
+
+    migrator.migrate(session)
     this
   }
 
@@ -125,7 +129,7 @@ class CassandraMigrator(configFile: File, migrationsDir: File, logger: Logger) {
   }
 }
 
-object CassandraMigrator {
+object ZendeskCassandraMigrator {
   val DefaultConsistencyLevel = ConsistencyLevel.QUORUM
   val DefaultReplicationStrategy = "SimpleStrategy"
   val DefaultReplicationFactor = 3
